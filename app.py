@@ -150,11 +150,19 @@ def transactional_visualizations(df):
         df['Max Product Sold'] = df.groupby('Shipping Address')['Quantity Purchased'].transform('sum')
 
     def time_based_segmentation(df):
-        df['Season'] = pd.to_datetime(df['Transaction Date']).dt.month.map({
-            12: 'Christmas Eve', 1: 'New Year', 10: 'Halloween'
-        }).fillna('Other')
+    if 'Transaction Date' in df.columns:
+        # Ensure the 'Transaction Date' column is in datetime format
+        df['Transaction Date'] = pd.to_datetime(df['Transaction Date'], errors='coerce')
+
+        # Check if there are any non-date values that were coerced to NaT
+        if df['Transaction Date'].isnull().any():
+            st.warning("Some values in 'Transaction Date' could not be converted to datetime. They have been set to NaT.")
+
         last_purchase_date = df['Transaction Date'].max()
-        df['Churn'] = (last_purchase_date - pd.to_datetime(df['Transaction Date'])).dt.days > 365
+        df['Churn'] = (last_purchase_date - df['Transaction Date']).dt.days > 365
+    else:
+        st.warning("'Transaction Date' column is not present in the dataset.")
+
 
     customer_segmentation(df)
     geolocation_segmentation(df)
