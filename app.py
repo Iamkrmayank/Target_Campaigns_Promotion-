@@ -160,8 +160,8 @@ def transactional_visualizations(df):
 
         last_purchase_date = df['Transaction Date'].max()
         df['Churn'] = (last_purchase_date - df['Transaction Date']).dt.days > 365
-        else:
-            st.warning("'Transaction Date' column is not present in the dataset.")
+    else:
+        st.warning("'Transaction Date' column is not present in the dataset.")
 
 
     customer_segmentation(df)
