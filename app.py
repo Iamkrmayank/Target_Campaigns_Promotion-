@@ -150,7 +150,7 @@ def transactional_visualizations(df):
         df['Max Product Sold'] = df.groupby('Shipping Address')['Quantity Purchased'].transform('sum')
 
     def time_based_segmentation(df):
-    if 'Transaction Date' in df.columns:
+        if 'Transaction Date' in df.columns:
         # Ensure the 'Transaction Date' column is in datetime format
         df['Transaction Date'] = pd.to_datetime(df['Transaction Date'], errors='coerce')
 
