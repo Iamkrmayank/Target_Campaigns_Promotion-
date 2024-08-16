@@ -151,15 +151,26 @@ def transactional_visualizations(df):
 
     def time_based_segmentation(df):
         if 'Transaction Date' in df.columns:
-        # Ensure the 'Transaction Date' column is in datetime format
             df['Transaction Date'] = pd.to_datetime(df['Transaction Date'], errors='coerce')
 
-        # Check if there are any non-date values that were coerced to NaT
         if df['Transaction Date'].isnull().any():
             st.warning("Some values in 'Transaction Date' could not be converted to datetime. They have been set to NaT.")
 
         last_purchase_date = df['Transaction Date'].max()
         df['Churn'] = (last_purchase_date - df['Transaction Date']).dt.days > 365
+
+        # Create 'Season' column
+        df['Season'] = pd.to_datetime(df['Transaction Date']).dt.month.map({
+            12: 'Christmas Eve', 1: 'New Year', 10: 'Halloween'
+        }).fillna('Other')
+
+        # Verify 'Season' column data
+        if df['Season'].isnull().any():
+            st.warning("Some values in 'Season' are missing or invalid.")
+
+        
+    
+
     
     customer_segmentation(df)
     geolocation_segmentation(df)
@@ -192,16 +203,6 @@ def transactional_visualizations(df):
     plt.title('Customer Lifetime Value Distribution')
     plt.xlabel('Total Expenditure (till Date)')
     plt.ylabel('Frequency')
-    st.pyplot(plt.gcf())
-    plt.close()
-
-    st.subheader('Geolocation vs Max Product Sold')
-    plt.figure(figsize=(12, 8))
-    sns.barplot(x='Shipping Address', y='Max Product Sold', data=df, palette='coolwarm')
-    plt.title('Geolocation vs Max Product Sold')
-    plt.xlabel('Shipping Address')
-    plt.ylabel('Max Product Sold')
-    plt.xticks(rotation=90)
     st.pyplot(plt.gcf())
     plt.close()
 
