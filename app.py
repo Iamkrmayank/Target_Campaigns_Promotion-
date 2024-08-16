@@ -15,6 +15,7 @@ def load_data(uploaded_file):
 def demographic_visualizations(df):
     st.title('Demographic Data Visualization')
     
+    # Age-Based Segmentation Visualization
     if 'Age' in df.columns:
         st.subheader('Age-Based Segmentation Visualization')
         age_segment_counts = {
@@ -190,64 +191,72 @@ def transactional_visualizations(df):
     plt.close()
 
     st.subheader('Geolocation vs Max Product Sold')
-    plt.figure(figsize=(10, 6))
-    sns.barplot(data=df, x='Shipping Address', y='Max Product Sold', palette='coolwarm')
+    plt.figure(figsize=(12, 8))
+    sns.barplot(x='Shipping Address', y='Max Product Sold', data=df, palette='coolwarm')
     plt.title('Geolocation vs Max Product Sold')
     plt.xlabel('Shipping Address')
     plt.ylabel('Max Product Sold')
+    plt.xticks(rotation=90)
     st.pyplot(plt.gcf())
     plt.close()
 
-    st.subheader('Seasonal Shopping Trends')
+    st.subheader('Seasonal Transaction Distribution')
     plt.figure(figsize=(10, 6))
     sns.countplot(data=df, x='Season', palette='Spectral')
-    plt.title('Seasonal Shopping Trends')
+    plt.title('Seasonal Transaction Distribution')
     plt.xlabel('Season')
+    plt.ylabel('Transaction Count')
+    st.pyplot(plt.gcf())
+    plt.close()
+
+    st.subheader('Customer Churn Analysis')
+    plt.figure(figsize=(10, 6))
+    sns.countplot(data=df, x='Churn', palette='coolwarm')
+    plt.title('Customer Churn Analysis')
+    plt.xlabel('Churn Status')
     plt.ylabel('Count')
+    plt.xticks([0, 1], ['Active', 'Churned'])
     st.pyplot(plt.gcf())
     plt.close()
 
     # Target Promotion Code for Transactional Data
     if st.checkbox('Show Target Promotion Suggestions for Transactional Segments'):
         st.write("**Target Promotion Suggestions**")
-        
-        high_spend_customers = df[df['High Spend Buyer'] == True]
-        if not high_spend_customers.empty:
-            st.write("**High Spend Customers:**")
-            st.write("These customers have a high expenditure. Consider offering them premium products or VIP memberships.")
+        high_spend_buyers = df[df['High Spend Buyer']]
+        if not high_spend_buyers.empty:
+            st.write("**High Spend Buyers:**")
+            st.write("Consider offering exclusive discounts or early access to new products.")
 
-        frequent_buyers = df[df['Frequent Buyer'] == True]
+        frequent_buyers = df[df['Frequent Buyer']]
         if not frequent_buyers.empty:
             st.write("**Frequent Buyers:**")
-            st.write("Consider offering them subscription services or loyalty programs to retain their engagement.")
+            st.write("Consider a loyalty program or reward points for frequent purchases.")
 
-        churn_customers = df[df['Churn'] == True]
-        if not churn_customers.empty:
+        high_clv_customers = df[df['High CLV']]
+        if not high_clv_customers.empty:
+            st.write("**High CLV Customers:**")
+            st.write("Target with personalized offers or premium services.")
+
+        churned_customers = df[df['Churn']]
+        if not churned_customers.empty:
             st.write("**Churned Customers:**")
-            st.write("Consider sending them personalized re-engagement offers or discounts to bring them back.")
-
-        if df['Season'].notna().any():
-            seasonal_shoppers = df[df['Season'] != 'Other']
-            if not seasonal_shoppers.empty:
-                st.write("**Seasonal Shoppers:**")
-                st.write("Consider targeting them with holiday-specific promotions or exclusive deals.")
+            st.write("Consider re-engagement strategies such as win-back campaigns or personalized offers.")
 
 def main():
-    st.title('Dynamic Visualization and Target Promotion')
-    
-    uploaded_file = st.file_uploader("Upload your dataset", type=['csv', 'xlsx'])
-    
+    st.title('Customer Segmentation and Target Promotion')
+    uploaded_file = st.file_uploader('Upload your dataset', type=['xlsx'])
+
     if uploaded_file is not None:
         df = load_data(uploaded_file)
         if df is not None:
-            options = st.selectbox(
-                "Select the type of data to visualize and promote:",
-                ("Demographic Data", "Transactional Data")
-            )
-            if options == "Demographic Data":
+            st.write('## Data Preview')
+            st.write(df.head())
+
+            if st.checkbox('Show Demographic Visualizations'):
                 demographic_visualizations(df)
-            elif options == "Transactional Data":
+
+            if st.checkbox('Show Transactional Visualizations'):
                 transactional_visualizations(df)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
