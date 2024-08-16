@@ -152,7 +152,7 @@ def transactional_visualizations(df):
     def time_based_segmentation(df):
         if 'Transaction Date' in df.columns:
         # Ensure the 'Transaction Date' column is in datetime format
-        df['Transaction Date'] = pd.to_datetime(df['Transaction Date'], errors='coerce')
+            df['Transaction Date'] = pd.to_datetime(df['Transaction Date'], errors='coerce')
 
         # Check if there are any non-date values that were coerced to NaT
         if df['Transaction Date'].isnull().any():
@@ -160,8 +160,8 @@ def transactional_visualizations(df):
 
         last_purchase_date = df['Transaction Date'].max()
         df['Churn'] = (last_purchase_date - df['Transaction Date']).dt.days > 365
-    else:
-        st.warning("'Transaction Date' column is not present in the dataset.")
+        else:
+            st.warning("'Transaction Date' column is not present in the dataset.")
 
 
     customer_segmentation(df)
